@@ -1,0 +1,5 @@
+*.~*
+/test/.bin/*
+/test/.dcu/*
+/test/*.res
+/test/*.dsk
