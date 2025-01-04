@@ -4,9 +4,6 @@ interface
 
 {$DEFINE STATIC_PROJ4}
 
-{$DEFINE ENABLE_PROJ4_API_V4}
-{.$DEFINE ENABLE_PROJ4_API_V6}
-
 const
   proj4_dll = 'proj.dll';
 
@@ -14,23 +11,6 @@ const
   RAD_TO_DEG = 57.29577951308232;
 
 type
-  {$IFDEF ENABLE_PROJ4_API_V6}
-  PJ_INFO = record
-    major: Integer;         // Major release number
-    minor: Integer;         // Minor release number
-    patch: Integer;         // Patch level
-    release: PAnsiChar;     // Release info. Version + date
-    version: PAnsiChar;     // Full version number
-    searchpath: PAnsiChar;  // Paths where init and grid files are
-                            // looked for. Paths are separated by
-                            // semi-colons on Windows, and colons
-                            // on non-Windows platforms.
-    paths: PPAnsiChar;
-    path_count: NativeUInt;
-  end;
-  {$ENDIF}
-
-  {$IFDEF ENABLE_PROJ4_API_V4}
   projUV = record
     U: Double;
     V: Double;
@@ -41,11 +21,9 @@ type
   projPJ = Pointer;
 
   projCtx = Pointer;
-  {$ENDIF}
 
 {$IFNDEF STATIC_PROJ4}
 
-{$IFDEF ENABLE_PROJ4_API_V4}
 var
   pj_init_plus: function(const Args: PAnsiChar): projPJ; cdecl;
   pj_init_plus_ctx: function(ctx: projCtx; const Args: PAnsiChar): projPJ; cdecl;
@@ -60,16 +38,9 @@ var
   pj_ctx_get_errno: function(ctx: projCtx): Integer; cdecl;
   pj_set_searchpath: procedure(count: Integer; const path: PPAnsiChar); cdecl;
   pj_get_release: function(): PAnsiChar; cdecl;
-{$ENDIF}
-
-{$IFDEF ENABLE_PROJ4_API_V6}
-var
-  proj_info: function(): PJ_INFO; cdecl;
-{$ENDIF}
 
 {$ELSE}
 
-  {$IFDEF ENABLE_PROJ4_API_V4}
   function pj_init_plus(const Args: PAnsiChar): projPJ; cdecl; external proj4_dll;
   function pj_init_plus_ctx(ctx: projCtx; const Args: PAnsiChar): projPJ; cdecl; external proj4_dll;
   function pj_transform(const src, dst: projPJ; point_count: LongInt;
@@ -83,7 +54,6 @@ var
   function pj_ctx_get_errno(ctx: projCtx): Integer; cdecl; external proj4_dll;
   procedure pj_set_searchpath(count: Integer; const path: PPAnsiChar); cdecl; external proj4_dll;
   function pj_get_release(): PAnsiChar; cdecl; external proj4_dll;
-  {$ENDIF}
 
 {$ENDIF}
 
@@ -110,15 +80,7 @@ var
 
 function get_proj4_dll_version: AnsiString;
 begin
-  Result := '';
-
-  {$IFDEF ENABLE_PROJ4_API_V4}
   Result := pj_get_release();
-  {$ENDIF}
-
-  {$IFDEF ENABLE_PROJ4_API_V6}
-  Result := proj_info().release;
-  {$ENDIF}
 end;
 
 procedure set_proj4_searchpath(const APath: string);
